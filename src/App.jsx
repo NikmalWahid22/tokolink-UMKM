@@ -12,6 +12,7 @@ import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import Categories from './pages/admin/Categories';
+import Orders from './pages/admin/Orders'; 
 import Settings from './pages/admin/Settings';
 
 // ==========================================
@@ -28,7 +29,6 @@ export default function App() {
         {/* ===================================== */}
         {/* AREA CUSTOMER (Katalog UMKM)          */}
         {/* ===================================== */}
-        {/* Route utama localhost:5173/ akan menampilkan halaman Home katalog */}
         <Route path="/" element={<Home />} />
 
 
@@ -48,6 +48,7 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<Products />} />
           <Route path="categories" element={<Categories />} />
+          <Route path="orders" element={<Orders />} /> {/* <-- Ini route untuk halamannya */}
           <Route path="settings" element={<Settings />} />
         </Route>
 
