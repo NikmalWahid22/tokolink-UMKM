@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // ==========================================
-// IMPORT PAGES - CUSTOMER
+// P A G E S  -  C U S T O M E R
 // ==========================================
 import Home from './pages/customer/Home';
 
 // ==========================================
-// IMPORT PAGES - ADMIN
+// P A G E S  -  A D M I N
 // ==========================================
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
@@ -16,10 +16,10 @@ import Orders from './pages/admin/Orders';
 import Settings from './pages/admin/Settings';
 
 // ==========================================
-// IMPORT COMPONENTS - ADMIN
+// C O M P O N E N T S  -  A D M I N
 // ==========================================
 import AdminLayout from './components/admin/AdminLayout';
-// import ProtectedRoute from './components/admin/ProtectedRoute'; // Nanti kita aktifkan pas nyambungin Auth Supabase
+import ProtectedRoute from './components/admin/ProtectedRoute'; // Satpam rute yang baru kita buat
 
 export default function App() {
   return (
@@ -27,36 +27,47 @@ export default function App() {
       <Routes>
         
         {/* ===================================== */}
-        {/* AREA CUSTOMER (Katalog UMKM)          */}
+        {/* PUBLIC ROUTE: AREA CUSTOMER           */}
+        {/* Halaman utama katalog untuk pembeli   */}
         {/* ===================================== */}
         <Route path="/" element={<Home />} />
 
 
         {/* ===================================== */}
-        {/* AREA ADMIN (Dashboard & Manajemen)    */}
+        {/* PUBLIC ROUTE: ADMIN AUTH              */}
+        {/* Halaman login admin (tanpa layout)    */}
         {/* ===================================== */}
-        {/* Halaman Login Admin terpisah dari layout utama */}
         <Route path="/admin/login" element={<Login />} />
         
-        {/* AdminLayout membungkus semua halaman dalam /admin agar Sidebar & Topbar konsisten */}
-        <Route path="/admin" element={<AdminLayout />}>
+        
+        {/* ===================================== */}
+        {/* PROTECTED ROUTES: AREA ADMIN          */}
+        {/* Rute di bawah ini wajib login (Auth)  */}
+        {/* ===================================== */}
+        <Route element={<ProtectedRoute />}>
           
-          {/* Jika user mengakses /admin saja, otomatis arahkan ke /admin/dashboard */}
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          {/* AdminLayout membungkus halaman agar Sidebar & Topbar konsisten */}
+          <Route path="/admin" element={<AdminLayout />}>
+            
+            {/* Redirect default: /admin -> /admin/dashboard */}
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            
+            {/* Nested routes untuk modul-modul manajemen admin */}
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="settings" element={<Settings />} />
+            
+          </Route>
           
-          {/* Nested routes untuk halaman-halaman admin */}
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="orders" element={<Orders />} /> {/* <-- Ini route untuk halamannya */}
-          <Route path="settings" element={<Settings />} />
         </Route>
 
 
         {/* ===================================== */}
-        {/* FALLBACK ROUTE (404)                  */}
+        {/* FALLBACK ROUTE (404 ERROR)            */}
+        {/* Redirect URL ngasal ke halaman utama  */}
         {/* ===================================== */}
-        {/* Jika user ngetik URL ngasal, lempar balik ke halaman utama katalog */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

@@ -10,9 +10,6 @@ export default function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Nanti di sini kita pasang fungsi login ke Supabase
-    console.log('Login attempt with:', email, password);
-    // Dummy redirect sementara
     navigate('/admin/dashboard');
   };
 
