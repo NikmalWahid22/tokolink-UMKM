@@ -38,11 +38,11 @@ export default function Dashboard() {
             if (ordersError) throw ordersError;
 
             if (ordersData && ordersData.length > 0) {
-                // Hitung total sales / revenue dari total_price di tabel orders
-                const totalRevenue = ordersData.reduce((acc, curr) => acc + Number(curr.total_price), 0);
+                // Hitung total sales / revenue dari total_amount di tabel orders
+                const totalRevenue = ordersData.reduce((acc, curr) => acc + Number(curr.total_amount || 0), 0);
 
                 // Hitung total order aktif (status pending atau processing)
-                const activeCount = ordersData.filter(o => o.status === 'pending' || o.status === 'processing').length;
+                const activeCount = ordersData.filter(o => o.status === 'Pending' || o.status === 'Processing').length;
 
                 setStats({
                     totalSales: totalRevenue,
@@ -57,10 +57,10 @@ export default function Dashboard() {
 
                 // Ambil 5 order terbaru untuk ditampilkan di list
                 const formattedOrders = ordersData.slice(0, 5).map(item => ({
-                    id: `#${item.id.substring(0, 6)}`,
-                    product: item.customer_name ? `Pesanan oleh ${item.customer_name}` : 'Order UMKM',
+                    id: `#${item.id.substring(0, 6).toUpperCase()}`,
+                    product: item.customer_name ? `Pesanan oleh ${item.customer_name}` : 'Order Customer',
                     status: item.status || 'Pending',
-                    price: item.total_price
+                    price: item.total_amount || 0
                 }));
 
                 setOrders(formattedOrders);
@@ -88,9 +88,10 @@ export default function Dashboard() {
 
     const StatusBadge = ({ status }) => {
         let style = "bg-zinc-100 text-zinc-700 border-zinc-200";
-        if (status === 'pending') style = "bg-blue-50 text-blue-700 border-blue-200";
+        if (status === 'Pending') style = "bg-amber-50 text-amber-700 border-amber-200";
         if (status === 'Processing') style = "bg-blue-50 text-blue-700 border-blue-200";
-        if (status === 'completed' || status === 'Delivered') style = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        if (status === 'Delivered' || status === 'Shipped') style = "bg-emerald-50 text-emerald-700 border-emerald-200";
+        if (status === 'Cancelled') style = "bg-red-50 text-red-700 border-red-200";
 
         return (
             <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${style}`}>
@@ -198,6 +199,7 @@ export default function Dashboard() {
                                 />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                    formatter={(value) => [formatRupiah(value), "Total"]}
                                 />
                                 <Area
                                     type="monotone"
