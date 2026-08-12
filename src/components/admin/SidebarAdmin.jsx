@@ -1,8 +1,23 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Layers, Package, ShoppingCart, Settings } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Layers, Package, ShoppingCart, Settings, LogOut } from 'lucide-react';
+import { supabase } from '../../lib/supabase'; // Pastikan path ini sesuai dengan project lu
 
 export default function SidebarAdmin() {
+  const navigate = useNavigate();
+
+  // Fungsi Logout
+  const handleLogout = async () => {
+    if (window.confirm('Yakin mau keluar dari dashboard?')) {
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        navigate('/admin/login'); // Arahin balik ke halaman login
+      } else {
+        alert('Gagal logout: ' + error.message);
+      }
+    }
+  };
+
   const navLinkStyle = ({ isActive }) => 
     `flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out text-sm ${
       isActive 
@@ -36,19 +51,27 @@ export default function SidebarAdmin() {
           Products
         </NavLink>
 
-        {/* --- INI DIA MENU ORDERS-NYA --- */}
         <NavLink to="/admin/orders" className={navLinkStyle}>
           <ShoppingCart size={20} strokeWidth={1.5} />
           Orders
         </NavLink>
       </div>
 
-      {/* Menu Bawah */}
-      <div className="mt-auto">
+      {/* Menu Bawah (Settings & Logout) */}
+      <div className="mt-auto flex flex-col gap-1.5">
         <NavLink to="/admin/settings" className={navLinkStyle}>
           <Settings size={20} strokeWidth={1.5} />
           Settings
         </NavLink>
+
+        {/* Tombol Logout Baru */}
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out text-sm text-red-400 hover:bg-red-500/10 hover:text-red-500 text-left w-full mt-2 border-t border-zinc-900 pt-4"
+        >
+          <LogOut size={20} strokeWidth={1.5} />
+          Logout
+        </button>
       </div>
 
     </nav>

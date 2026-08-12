@@ -4,13 +4,14 @@ import { supabase } from '../../lib/supabase';
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   
   // State Modal & Form
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   
-  // State Data Form
+  // State Data Form (Menyesuaikan kolom: nama, deskripsi, image_url, is_active)
   const [formData, setFormData] = useState({ 
     id: null, 
     nama: '', 
@@ -26,10 +27,17 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
+  // 1. READ: Ambil data dari tabel categories Supabase
   const fetchCategories = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase.from('categories').select('*');
-    if (!error) setCategories(data);
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('nama', { ascending: true });
+      
+    if (!error && data) {
+      setCategories(data);
+    }
     setIsLoading(false);
   };
 
@@ -45,61 +53,89 @@ export default function Categories() {
     setModalMode('edit');
     setFormData({ 
       id: category.id, 
-      nama: category.nama, 
+      nama: category.nama || '', 
       deskripsi: category.deskripsi || '', 
       is_active: category.is_active !== false 
     });
     setImageFile(null);
-    setImagePreview(category.image_url || ''); // Tampilkan gambar lama jika ada
+    setImagePreview(category.image_url || '');
     setIsModalOpen(true);
   };
 
-  // Handler untuk Preview Image lokal saat user milih file
+  // Handler untuk Preview Image lokal saat user memilih file
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file)); // Bikin URL sementara buat preview
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
+  // 2. CREATE & UPDATE: Simpan atau perbarui data ke Supabase
   const handleSave = async (e) => {
     e.preventDefault();
     try {
       let finalImageUrl = imagePreview;
 
-      // TODO: Logika Upload Gambar ke Supabase Storage (Nanti kita buat fungsinya)
-      // if (imageFile) {
-      //   const { data, error } = await supabase.storage.from('category-images').upload(namaFile, imageFile);
-      //   finalImageUrl = url_gambar_dari_storage;
-      // }
+      // Jika user memilih file gambar baru, upload ke Supabase Storage (Bucket: 'categories')
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `cat_${Date.now()}.${fileExt}`;
 
+        const { error: uploadError } = await supabase.storage
+          .from('categories') // Pastikan bucket 'categories' sudah dibuat di Supabase
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicURLData } = supabase.storage
+          .from('categories')
+          .getPublicUrl(fileName);
+
+        finalImageUrl = publicURLData.publicUrl;
+      }
+
+      // Payload data sesuai kolom database
       const payload = { 
         nama: formData.nama, 
-        // deskripsi: formData.deskripsi, // Uncomment jika di tabel categories ada kolom deskripsi
-        // is_active: formData.is_active, // Uncomment jika di tabel categories ada kolom is_active
-        image_url: finalImageUrl 
+        image_url: finalImageUrl,
+        // deskripsi: formData.deskripsi, // Uncomment jika kolom deskripsi sudah ada di DB
+        // is_active: formData.is_active  // Uncomment jika kolom is_active sudah ada di DB
       };
 
       if (modalMode === 'add') {
-        await supabase.from('categories').insert([payload]);
+        const { error } = await supabase.from('categories').insert([payload]);
+        if (error) throw error;
       } else {
-        await supabase.from('categories').update(payload).eq('id', formData.id);
+        const { error } = await supabase.from('categories').update(payload).eq('id', formData.id);
+        if (error) throw error;
       }
       
       setIsModalOpen(false);
       fetchCategories();
     } catch (error) {
-      console.error("Error saving category:", error);
+      console.error("Error saving category:", error.message);
+      alert("Gagal menyimpan kategori: " + error.message);
     }
   };
 
+  // 3. DELETE: Hapus data dari Supabase
   const handleDelete = async (id) => {
     if (window.confirm('Yakin mau hapus kategori ini?')) {
-      await supabase.from('categories').delete().eq('id', id);
-      fetchCategories();
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (!error) {
+        fetchCategories();
+      } else {
+        alert("Gagal menghapus: " + error.message);
+      }
     }
   };
+
+  // 4. SEARCH FILTER: Pencarian lokal berdasarkan nama
+  const filteredCategories = categories.filter(cat => {
+    const name = cat.nama || '';
+    return name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="flex flex-col gap-6 relative">
@@ -107,9 +143,12 @@ export default function Categories() {
       {/* --- Header & Action Bar --- */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 text-zinc-400" size={18} />
+          <Search className="absolute left-3 top-3 text-zinc-400" size={18} />
           <input 
-            className="w-full bg-white border border-zinc-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-zinc-900 outline-none" 
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white border border-zinc-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-zinc-900 outline-none transition-all" 
             placeholder="Search categories..." 
           />
         </div>
@@ -122,42 +161,48 @@ export default function Categories() {
       </div>
 
       {/* --- Grid Kategori --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((cat) => (
-          <div key={cat.id} className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden group hover:shadow-md transition-all">
-            <div className="h-32 bg-zinc-100 relative">
-              {cat.image_url ? (
-                <img src={cat.image_url} className="w-full h-full object-cover" alt={cat.nama} />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-zinc-400"><Tag size={40}/></div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <h3 className="absolute bottom-3 left-4 text-xl font-bold text-white">{cat.nama}</h3>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-              <span className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Kategori</span>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleOpenEdit(cat)} className="p-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"><Edit2 size={16}/></button>
-                <button onClick={() => handleDelete(cat.id)} className="p-2 text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16}/></button>
+      {isLoading ? (
+        <div className="py-12 text-center text-sm text-zinc-400">Memuat kategori...</div>
+      ) : filteredCategories.length === 0 ? (
+        <div className="py-12 text-center text-sm text-zinc-400">Tidak ada kategori ditemukan.</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCategories.map((cat) => (
+            <div key={cat.id} className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden group hover:shadow-md transition-all">
+              <div className="h-32 bg-zinc-100 relative">
+                {cat.image_url ? (
+                  <img src={cat.image_url} className="w-full h-full object-cover" alt={cat.nama} />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-400"><Tag size={40}/></div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <h3 className="absolute bottom-3 left-4 text-xl font-bold text-white">{cat.nama}</h3>
+              </div>
+              <div className="p-4 flex justify-between items-center">
+                <span className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Kategori</span>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleOpenEdit(cat)} className="p-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg"><Edit2 size={16}/></button>
+                  <button onClick={() => handleDelete(cat.id)} className="p-2 text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={16}/></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {/* Card Tambah Cepat */}
-        <div 
-          onClick={handleOpenAdd}
-          className="border-2 border-dashed border-zinc-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-zinc-400 hover:bg-zinc-50 cursor-pointer transition-colors"
-        >
-          <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-500 mb-3">
-            <Plus size={24} />
+          {/* Card Tambah Cepat */}
+          <div 
+            onClick={handleOpenAdd}
+            className="border-2 border-dashed border-zinc-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:border-zinc-400 hover:bg-zinc-50 cursor-pointer transition-colors min-h-[200px]"
+          >
+            <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-500 mb-3">
+              <Plus size={24} />
+            </div>
+            <p className="font-semibold text-zinc-900">Create New</p>
+            <p className="text-xs text-zinc-500">Setup a new category</p>
           </div>
-          <p className="font-semibold text-zinc-900">Create New</p>
-          <p className="text-xs text-zinc-500">Setup a new category</p>
         </div>
-      </div>
+      )}
 
-      {/* --- WIDE MODAL FORM (Desain Stitch) --- */}
+      {/* --- WIDE MODAL FORM --- */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
           
@@ -223,7 +268,6 @@ export default function Categories() {
                 <div className="md:col-span-2">
                   <label className="relative border-2 border-dashed border-zinc-200 rounded-xl p-8 flex flex-col items-center justify-center text-center bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400 transition-colors cursor-pointer group overflow-hidden min-h-[200px]">
                     
-                    {/* Jika ada preview gambar, tampilkan gambar. Jika kosong, tampilkan ikon upload */}
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-50 transition-opacity" />
                     ) : (
@@ -236,7 +280,6 @@ export default function Categories() {
                       </>
                     )}
                     
-                    {/* Teks Ganti Gambar jika sudah ada */}
                     {imagePreview && (
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                          <span className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md flex items-center gap-2">
@@ -264,7 +307,6 @@ export default function Categories() {
                       <label className="font-semibold text-zinc-900 block text-sm">Active Status</label>
                       <p className="text-xs text-zinc-500 mt-1">If disabled, the category and its products will be hidden from the store.</p>
                     </div>
-                    {/* Custom Toggle Switch */}
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input 
                         type="checkbox" 
