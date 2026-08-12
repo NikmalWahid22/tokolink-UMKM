@@ -1,20 +1,46 @@
 import React, { useState } from 'react';
-import { Store, Mail, Lock, EyeOff, Eye, ArrowRight } from 'lucide-react';
+import { Store, Mail, Lock, EyeOff, Eye, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase'; // Pastikan path ini sesuai dengan project lu
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/admin/dashboard');
+    setIsLoading(true);
+    setErrorMessage(''); // Reset error sebelum mencoba login baru
+
+    try {
+      // Autentikasi sungguhan menggunakan Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Jika berhasil login, arahkan ke dashboard
+      navigate('/admin/dashboard');
+    } catch (error) {
+      console.error('Login error:', error.message);
+      setErrorMessage('Email atau password yang Anda masukkan salah.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    // 1. BAGIAN BODY & BACKGROUND (Fix: Pakai w-screen)
+    // ==========================================
+    // WRAPPER & BACKGROUND UTAMA
+    // ==========================================
     <div className="relative min-h-screen w-screen flex items-center justify-center p-4 bg-zinc-900 overflow-hidden font-sans">
       
       {/* Background Foto + Overlay Gelap */}
@@ -25,7 +51,9 @@ export default function Login() {
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
       </div>
 
-      {/* 2. KARTU FORM LOGIN (Fix: Pakai strict width w-[90%] sm:w-[420px]) */}
+      {/* ========================================== */}
+      {/* KARTU FORM LOGIN                           */}
+      {/* ========================================== */}
       <div className="z-10 w-[90%] sm:w-[420px] bg-white/95 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl p-8 sm:p-10 flex flex-col gap-6 relative">
         
         {/* Header */}
@@ -36,6 +64,13 @@ export default function Login() {
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Welcome back</h1>
           <p className="text-sm text-zinc-500">Sign in to TokoLink Admin Dashboard</p>
         </div>
+
+        {/* Notifikasi Error (Hanya muncul jika login gagal) */}
+        {errorMessage && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium border border-red-100 text-center">
+            {errorMessage}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -57,6 +92,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@tokolink.com" 
                 required 
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -83,11 +119,13 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
                 required 
+                disabled={isLoading}
               />
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-700 transition-colors"
+                disabled={isLoading}
               >
                 {showPassword ? (
                   <Eye className="w-5 h-5" strokeWidth={1.5} />
@@ -105,6 +143,7 @@ export default function Login() {
                 className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer" 
                 id="remember-me" 
                 type="checkbox"
+                disabled={isLoading}
               />
               <span className="text-xs text-zinc-600">Remember me for 30 days</span>
             </label>
@@ -113,10 +152,20 @@ export default function Login() {
           {/* Submit Button */}
           <button 
             type="submit"
-            className="w-full flex justify-center items-center gap-2 bg-zinc-900 text-white py-3 rounded-xl font-medium text-sm hover:bg-zinc-800 active:scale-[0.99] transition-all shadow-md mt-2"
+            disabled={isLoading}
+            className="w-full flex justify-center items-center gap-2 bg-zinc-900 text-white py-3 rounded-xl font-medium text-sm hover:bg-zinc-800 active:scale-[0.99] transition-all shadow-md mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign In
-            <ArrowRight className="w-4 h-4" strokeWidth={2} />
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </>
+            )}
           </button>
         </form>
 
