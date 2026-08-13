@@ -74,7 +74,6 @@ export default function Settings() {
     setSettingsData(prev => ({ ...prev, [name]: checked }));
   };
 
-  // 4. Simpan perubahan ke Supabase
   const handleSaveChanges = async () => {
     setIsSaving(true);
     try {
@@ -87,17 +86,31 @@ export default function Settings() {
 
       if (!existingData) {
         alert('Data setting utama tidak ditemukan di database.');
+        setIsSaving(false);
         return;
       }
 
+      // Payload sekarang ngirim SEMUA data termasuk Shipping & Profile
       const payload = {
         store_name: settingsData.store_name,
+        support_email: settingsData.support_email,
+        currency: settingsData.currency,
+        
         bank_transfer_enabled: settingsData.bank_transfer_enabled,
         ewallet_enabled: settingsData.ewallet_enabled,
         cod_enabled: settingsData.cod_enabled,
         bank_name: settingsData.bank_name,
         account_number: settingsData.account_number,
         account_holder: settingsData.account_holder,
+        
+        shipping_flat_rate: parseInt(settingsData.shipping_flat_rate) || 0,
+        free_shipping_enabled: settingsData.free_shipping_enabled,
+        free_shipping_min: parseInt(settingsData.free_shipping_min) || 0,
+        
+        first_name: settingsData.first_name,
+        last_name: settingsData.last_name,
+        profile_email: settingsData.profile_email,
+        
         updated_at: new Date()
       };
 
