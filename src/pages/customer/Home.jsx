@@ -11,7 +11,7 @@ import {
   Headset,
   Image as ImageIcon,
   Loader2,
-  Star // <-- Tambahan icon Bintang buat testimonial
+  Star 
 } from 'lucide-react';
 import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
 
@@ -277,93 +277,109 @@ export default function Home() {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Testimonial 1 */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.1 }} className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col">
                 <div className="flex gap-1 mb-5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />
-                  ))}
+                  {[1, 2, 3, 4, 5].map((star) => <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />)}
                 </div>
-                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">
-                  "Katalog UMKM ini benar-benar mengubah cara kami mencari produk kerajinan untuk toko kami. Kualitasnya luar biasa dan platformnya sangat mudah digunakan."
-                </p>
+                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">"Katalog UMKM ini benar-benar mengubah cara kami mencari produk kerajinan untuk toko kami. Kualitasnya luar biasa dan platformnya sangat mudah digunakan."</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">
-                    SJ
-                  </div>
+                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">SJ</div>
                   <div>
                     <div className="font-bold text-zinc-900 text-sm">Siti Jamilah</div>
                     <div className="text-sm text-zinc-500">Pemilik, Toko Oleh-oleh Vanguard</div>
                   </div>
                 </div>
               </motion.div>
-
-              {/* Testimonial 2 */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col">
                 <div className="flex gap-1 mb-5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />
-                  ))}
+                  {[1, 2, 3, 4, 5].map((star) => <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />)}
                 </div>
-                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">
-                  "Transparansi dan komunikasi langsung dengan pengrajin membuat kami bisa membangun cerita bermakna di balik produk yang kami jual. Sangat direkomendasikan."
-                </p>
+                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">"Transparansi dan komunikasi langsung dengan pengrajin membuat kami bisa membangun cerita bermakna di balik produk yang kami jual. Sangat direkomendasikan."</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">
-                    MR
-                  </div>
+                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">MR</div>
                   <div>
                     <div className="font-bold text-zinc-900 text-sm">Maulana Ridwan</div>
                     <div className="text-sm text-zinc-500">Founder, Studio Nusantara</div>
                   </div>
                 </div>
               </motion.div>
-
-              {/* Testimonial 3 */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.3 }} className="bg-white p-8 rounded-2xl border border-zinc-200 hover:shadow-md transition-shadow flex flex-col">
                 <div className="flex gap-1 mb-5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />
-                  ))}
+                  {[1, 2, 3, 4, 5].map((star) => <Star key={star} size={18} strokeWidth={2} className="text-zinc-800" />)}
                 </div>
-                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">
-                  "Kami berhasil menghemat waktu pengadaan barang hingga 40% sekaligus meningkatkan kualitas inventaris kami. Integrasi sistemnya sangat mulus."
-                </p>
+                <p className="italic text-zinc-600 mb-8 flex-grow leading-relaxed">"Kami berhasil menghemat waktu pengadaan barang hingga 40% sekaligus meningkatkan kualitas inventaris kami. Integrasi sistemnya sangat mulus."</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">
-                    EL
-                  </div>
+                  <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center font-bold text-zinc-500">EL</div>
                   <div>
                     <div className="font-bold text-zinc-900 text-sm">Eka Lestari</div>
                     <div className="text-sm text-zinc-500">VP Operations, Acme Corp</div>
                   </div>
                 </div>
               </motion.div>
-
             </div>
           </div>
         </section>
 
+        {/* --- CTA / Newsletter Section --- */}
+        <section className="bg-zinc-100 max-w-full pb-24 px-6 pt-12">
+          <div className="max-w-[1200px] mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-[#18181b] rounded-3xl p-12 md:p-20 text-center shadow-xl relative overflow-hidden"
+            >
+              <div className="relative z-10 max-w-2xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+                  Siap untuk mulai belanja produk UMKM?
+                </h2>
+                <p className="text-zinc-400 mb-10 text-lg">
+                  Bergabunglah dengan ribuan mitra yang telah mempercayakan pasokan produk mereka melalui UMKM Catalog.
+                </p>
+                
+                <form className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto mb-4" onSubmit={(e) => e.preventDefault()}>
+                  <input 
+                    type="email" 
+                    placeholder="Masukkan email Anda" 
+                    required
+                    className="flex-1 px-5 py-3.5 rounded-xl border-0 bg-white/10 text-white placeholder:text-zinc-400 focus:ring-2 focus:ring-white/20 focus:bg-white/15 transition-all outline-none text-sm"
+                  />
+                  <button 
+                    type="submit"
+                    className="bg-white text-zinc-900 px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-zinc-200 transition-colors whitespace-nowrap shadow-sm"
+                  >
+                    Gabung Platform
+                  </button>
+                </form>
+                <p className="text-sm text-zinc-500">
+                  Akses gratis 14 hari. Tanpa perlu kartu kredit.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
       </main>
+
+      {/* --- Footer --- */}
+      <footer className="bg-[#faf9f8] border-t border-zinc-200 w-full mt-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center max-w-[1200px] mx-auto px-6 py-8 gap-4">
+          <div className="font-bold text-zinc-900 text-lg">
+            UMKM Catalog
+          </div>
+          
+          <div className="flex gap-6 text-xs font-semibold text-zinc-500">
+            <a href="#" className="hover:text-zinc-900 transition-colors">Kebijakan Privasi</a>
+            <a href="#" className="hover:text-zinc-900 transition-colors">Syarat Layanan</a>
+            <a href="#" className="hover:text-zinc-900 transition-colors">Status Platform</a>
+          </div>
+          
+          <div className="text-xs text-zinc-400">
+            © 2026 UMKM Catalog. Hak cipta dilindungi.
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }
